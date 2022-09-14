@@ -15,29 +15,28 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        buttonsToToolBar()
-        siteAppear()
-    }
-    
-//    func initialPage () {
-//        let inital = UIAlertController(title: "Inital Page", message: "What pages do you want to open:", preferredStyle: .actionSheet)
-//        for website in websites {
-//            inital.addAction(UIAlertAction(title: website, style: .default, handler: openPage))
-//        }
-//        present(inital, animated: true)
-//    }
-    
-    func siteAppear() {
         webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
-         let url = URL(string: "http://" + websites[0])!
-        webView.load(URLRequest(url: url))
         webView.allowsBackForwardNavigationGestures = true
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Open", style: .plain, target: self, action: #selector(openTapped))
+        initialPage()
     }
     
+    func initialPage () {
+        navigationController?.isNavigationBarHidden = true
+
+        let inital = UIAlertController(title: "Inital Page", message: "What pages do you want to open:", preferredStyle: .actionSheet)
+        
+        for website in websites {
+            inital.addAction(UIAlertAction(title: website, style: .default, handler: openPage))
+        }
+        present(inital, animated: true)
+        buttonsToToolBar()
+    }
+
     func buttonsToToolBar() {
         progressView = UIProgressView(progressViewStyle: .default)
         progressView.sizeToFit()
+        
         
         let back = UIBarButtonItem(title: "Back", style: .plain, target: webView, action: #selector(webView.goBack))
                                      
@@ -50,8 +49,6 @@ class ViewController: UIViewController {
         let refresh = UIBarButtonItem(barButtonSystemItem: .refresh, target: webView, action: #selector(webView.reload))
         
         toolbarItems = [back, progressBar, spacer, refresh, forward]
-        
-        navigationController?.isToolbarHidden = false
     }
     
     @objc func openTapped() {
@@ -64,6 +61,7 @@ class ViewController: UIViewController {
         
         ac.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
         present(ac, animated: true)
+       
     }
     
     func openPage(action: UIAlertAction) {
@@ -98,6 +96,7 @@ extension ViewController: WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let url = navigationAction.request.url
+        navigationController?.isNavigationBarHidden = false
 
         if let host = url?.host {
             for website in websites {
@@ -114,4 +113,3 @@ extension ViewController: WKNavigationDelegate {
         }
     }
 }
-
